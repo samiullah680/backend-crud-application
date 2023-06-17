@@ -2,7 +2,7 @@ const Router = require('express')
 const ProdctModel = require('../Models/ProductModels/AllProductModel')
 const ProductControllerCreateProduct = async (req, res) => {
     try {
-        let post = await ProdctModel.create({ ...req.body })
+        let post = await ProdctModel.create({ ...req.body, user_id: req.user.id })
         res.status(200).json({
             status: 200,
             data: post,
@@ -15,7 +15,6 @@ const ProductControllerCreateProduct = async (req, res) => {
         });
     }
 }
-
 const ProductControllerEditProduct = async (req, res) => {
     const editData = {
         title: req.body.title,
@@ -29,13 +28,13 @@ const ProductControllerEditProduct = async (req, res) => {
 
     }
     try {
-        let EditData = await EmpData.findByIdAndUpdate(req.body.id, editData, {
+        let post = await ProdctModel.findByIdAndUpdate(req.body.id, editData, {
             new: true
         });
         if (post) {
             res.status(200).json({
                 status: 200,
-                data: EditData,
+
                 message: "Product Edit Successfull"
             });
         } else {
@@ -58,7 +57,7 @@ const ProductControllerDeleteProduct = async (req, res) => {
         if (deleteProduct) {
             res.status(200).json({
                 status: 200,
-                message: "Post deleted successfully",
+                message: "Product  deleted successfully",
             });
         } else {
             res.status(400).json({
@@ -76,9 +75,40 @@ const ProductControllerDeleteProduct = async (req, res) => {
 
 
 const ProductControllerGetProduct = async (req, res) => {
+
+    let count = req.query.count;
+    let activePage = req.query.activePage - 1;
     try {
+        const filter = {
+            user_id: req.user.id,
+            title: req.query.title,
+            category: req.query.category,
+            price: req.query.price,
+            brand: req.query.brand,
+            quantity: req.query.quantity,
+        }
+        const filterQuery = Object.entries(filter).reduce((acc, [key, value]) => {
+            if (value !== undefined) {
+                acc[key] = value;
+            }
+            return acc;
+        }, {})
+
+        if (req.query.search != undefined && req.query.search != "") {
+            filterQuery.$or = [{ title: req.query.search }, { brand: req.query.search }]
+        }
+        // console.log("filter:", filter, "filterQuery:", filterQuery);
+
+        let TotleCount = await ProdctModel.count(filterQuery)
+
+        const product = await ProdctModel.find(filterQuery).limit(count)
+            .skip(count * activePage);
+        // const product = await ProdctModel.find({});
+
         res.status(200).json({
             status: 200,
+            data: product,
+            TotleCount,
             message: "Product  Get Product Success Full"
         });
     } catch (err) {

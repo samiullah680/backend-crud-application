@@ -2,8 +2,7 @@ const { json } = require('express');
 var express = require('express');
 var app = express();
 const mongoose = require("mongoose");
-const EmpData = require("./Models/Emp")
-const NewEmp = require("./Models/NewEmp")
+
 const cors = require('cors');
 app.use(cors());
 const bodyParser = require('body-parser');
@@ -17,12 +16,15 @@ const connectionParams = {
 //import ProductRouter
 const ProductRouter = require("./Routers/ProductRouter");
 //import CrudRouter
-const CrudRouter = require("./Routers/CrudRouter")
-app.use('/', CrudRouter)
+// const CrudRouter = require("./Routers/CrudRouter")
+// app.use('/', CrudRouter)
 
 //Import AuthRouter
 const AuthRouter = require("./Routers/AuthRouter")
 app.use('/', AuthRouter)
+
+//Import ProductRoute
+app.use('/', ProductRouter)
 
 
 mongoose.connect(

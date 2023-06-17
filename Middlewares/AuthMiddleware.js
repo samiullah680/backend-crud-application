@@ -12,14 +12,20 @@ const auth = asyncHandler(async (req, res, next) => {
 
             next();
         } catch (error) {
-            res.status(401);
-            throw new Error("Not Authorized !");
+
+            res.status(400).json({
+                status: 400,
+                message: "Not Authorized !",
+            });
+
         }
     }
 
     if (!token) {
-        res.status(401);
-        throw new Error("Not Authorized ! No Token found !")
+        res.status(400).json({
+            status: 400,
+            message: "Not Authorized ! No Token found !",
+        });
     }
 })
 
